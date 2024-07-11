@@ -1,1 +1,1 @@
-Personal Neovim setup 🖥️⚙️
+# Personal Neovim setup 🖥️⚙️
