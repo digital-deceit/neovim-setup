@@ -8,6 +8,7 @@ return { -- LSP Configuration & Plugins
 		-- { "j-hui/fidget.nvim", opts = {} },
 
 		{ "folke/neodev.nvim", opts = {} },
+		{ "sigmasd/deno-nvim" },
 	},
 	config = function()
 		require("lspconfig.ui.windows").default_options.border = "rounded"
@@ -111,10 +112,27 @@ return { -- LSP Configuration & Plugins
 		})
 
 		-- [[ Deno ]]
-		lspconfig.denols.setup({
+		require("deno-nvim").setup({
+			server = {
+				capabilities = capabilities,
+				root_dir = require("lspconfig").util.root_pattern("deno.json", "deno.jsonc"),
+				single_file_support = false,
+			},
+			dap = {
+				adapter = {
+					executable = {
+						args = {
+							vim.env.MASON .. "/packages/js-debug-adapter/js-debug/src/dapDebugServer.js",
+							"${port}",
+						},
+					},
+				},
+			},
+		})
+
+		-- [[ C ]]
+		lspconfig.clangd.setup({
 			capabilities = capabilities,
-			root_dir = lspconfig.util.root_pattern("deno.json", "deno.jsonc"),
-			single_file_support = false,
 		})
 
 		local servers = {
