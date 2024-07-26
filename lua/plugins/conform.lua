@@ -1,4 +1,4 @@
-return { -- Autoformat
+return {
 	"stevearc/conform.nvim",
 	event = "BufWritePre",
 	cmd = "ConformInfo",
@@ -15,44 +15,36 @@ return { -- Autoformat
 	config = function()
 		local conform = require("conform")
 
-		conform.formatters.biome = function()
-			return {
-				cwd = require("conform.util").root_file({ "biome.json" }),
-				require_cwd = true,
-			}
-		end
-
-		conform.formatters.deno_fmt = function()
-			return {
+		conform.formatters = {
+			deno_fmt = {
 				cwd = require("conform.util").root_file({ "deno.json", "deno.jsonc" }),
 				require_cwd = true,
-			}
-		end
-
-		conform.formatters.prettierd = function()
-			return {
-				cwd = require("conform.util").root_file({
-					".prettierrc",
-					".prettierrc.json",
-					".prettierrc.mjs",
-				}),
+			},
+			prettierd = {
+				cwd = require("conform.util").root_file({ ".prettierrc.json", ".prettierrc", ".prettierrc.js" }),
 				require_cwd = true,
-			}
-		end
-
-		conform.formatters.prettier = function()
-			return {
-				cwd = require("conform.util").root_file({
-					".prettierrc",
-					".prettierrc.json",
-					".prettierrc.mjs",
-				}),
+			},
+			prettier = {
+				cwd = require("conform.util").root_file({ ".prettierrc.json", ".prettierrc", ".prettierrc.js" }),
 				require_cwd = true,
-			}
-		end
+			},
+
+			biome = {
+				cwd = require("conform.util").root_file({ "biome.json" }),
+				require_cwd = true,
+			},
+		}
 
 		conform.setup({
-			notify_on_error = false,
+			formatters_by_ft = {
+				lua = { "stylua" },
+				c = { "clang-format" },
+				go = { "gofmt", "goimports-reviser", "gofumpt", "golines" },
+				rust = { "rustfmt", lsp_format = "fallback" },
+				typescript = { "deno_fmt", "biome", "prettierd", "prettier", stop_after_first = true },
+				javascript = { "deno_fmt", "biome", "prettierd", "prettier", stop_after_first = true },
+				json = { "deno_fmt", "prettierd", "prettier", "biome", stop_after_first = true },
+			},
 			format_on_save = function(bufnr)
 				-- Disable "format_on_save lsp_fallback" for languages that don't
 				-- have a well standardized coding style. You can add additional
@@ -63,14 +55,7 @@ return { -- Autoformat
 					lsp_fallback = not disable_filetypes[vim.bo[bufnr].filetype],
 				}
 			end,
-			formatters_by_ft = {
-				lua = { "stylua" },
-				c = { "clang-format" },
-				go = { "goimports-reviser", "gofumpt", "golines" },
-				json = { { "biome", "prettierd", "prettier", "deno_fmt" } },
-				javascript = { { "biome", "prettierd", "prettier", "deno_fmt" } },
-				typescript = { { "biome", "prettierd", "prettier", "deno_fmt" } },
-			},
+			notify_on_error = false,
 		})
 
 		vim.api.nvim_create_user_command("Format", function(args)
@@ -82,7 +67,7 @@ return { -- Autoformat
 					["end"] = { args.line2, end_line:len() },
 				}
 			end
-			conform.format({ async = true, lsp_fallback = true, range = range })
+			require("conform").format({ async = true, lsp_fallback = true, range = range })
 		end, { range = true })
 	end,
 }

@@ -4,11 +4,8 @@ return { -- LSP Configuration & Plugins
 		{ "williamboman/mason.nvim", config = true },
 		{ "williamboman/mason-lspconfig.nvim" },
 		{ "WhoIsSethDaniel/mason-tool-installer.nvim" },
-
-		-- { "j-hui/fidget.nvim", opts = {} },
-
-		{ "folke/neodev.nvim", opts = {} },
 		{ "sigmasd/deno-nvim" },
+		{ "pmizio/typescript-tools.nvim" },
 	},
 	config = function()
 		require("lspconfig.ui.windows").default_options.border = "rounded"
@@ -54,7 +51,7 @@ return { -- LSP Configuration & Plugins
 
 				-- Opens a popup that displays documentation about the word under your cursor
 				--  See `:help K` for why this keymap.
-				map("K", vim.lsp.buf.hover, "Hover Documentation")
+				-- map("K", vim.lsp.buf.hover, "Hover Documentation")
 
 				-- WARN: This is not Goto Definition, this is Goto Declaration.
 				--  For example, in C this would take you to the header.
@@ -78,6 +75,14 @@ return { -- LSP Configuration & Plugins
 						buffer = event.buf,
 						group = highlight_augroup,
 						callback = vim.lsp.buf.clear_references,
+					})
+
+					vim.api.nvim_create_autocmd("LspDetach", {
+						group = vim.api.nvim_create_augroup("kickstart-lsp-detach", { clear = true }),
+						callback = function(event2)
+							vim.lsp.buf.clear_references()
+							vim.api.nvim_clear_autocmds({ group = "kickstart-lsp-highlight", buffer = event2.buf })
+						end,
 					})
 				end
 
@@ -111,6 +116,13 @@ return { -- LSP Configuration & Plugins
 			capabilities = capabilities,
 		})
 
+		-- [[ Typescript  Tools]]
+		require("typescript-tools").setup({
+			capabilities = capabilities,
+			root_dir = lspconfig.util.root_pattern("tsconfig.json", "package.json"),
+			single_file_support = false,
+		})
+
 		-- [[ Deno ]]
 		require("deno-nvim").setup({
 			server = {
@@ -137,14 +149,8 @@ return { -- LSP Configuration & Plugins
 
 		local servers = {
 			-- See `:help lspconfig-all` for a list of all the pre-configured LSPs
-			--
-			-- Some languages (like typescript) have entire language plugins that can be useful:
-			--    https://github.com/pmizio/typescript-tools.nvim
-			--
-			-- But for many setups, the LSP (`tsserver`) will work just fine
 			tsserver = {
-				root_dir = lspconfig.util.root_pattern({ "package.json", "tsconfig.json" }),
-				single_file_support = false,
+				autostart = false,
 			},
 			biome = {
 				root_dir = lspconfig.util.root_pattern("biome.json"),
@@ -165,7 +171,18 @@ return { -- LSP Configuration & Plugins
 			},
 		}
 
-		require("mason").setup()
+		require("mason").setup({
+			ui = {
+				icons = {
+					package_installed = "✔️",
+					package_pending = "➡️",
+					package_uninstalled = "🔴",
+				},
+				border = "rounded",
+				width = 0.9,
+				height = 1,
+			},
+		})
 
 		local ensure_installed = vim.tbl_keys(servers or {})
 		vim.list_extend(ensure_installed, {

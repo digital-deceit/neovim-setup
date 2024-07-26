@@ -10,12 +10,12 @@ return {
 				keywords = { italic = false },
 				floats = "transparent",
 				sidebars = "transparent",
-				variables = { fg = "#bb43cc", bold = true },
+				variables = { fg = "#bb11cc", bold = true },
 			},
-			-- on_colors = function(colors)
-			-- 	colors.bg_float = "none"
-			-- 	colors.bg_sidebar = "none"
-			-- end,
+			on_colors = function(colors)
+				colors.bg_statusline = "none"
+				colors.border_highlight = "#bb33cc"
+			end,
 		})
 
 		vim.cmd([[colorscheme tokyonight]])
