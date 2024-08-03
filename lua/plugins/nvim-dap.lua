@@ -5,8 +5,17 @@ return {
 		"rcarriga/nvim-dap-ui",
 		"nvim-neotest/nvim-nio",
 		{ "theHamsta/nvim-dap-virtual-text", opts = {} },
-		"leoluz/nvim-dap-go",
 		"jay-babu/mason-nvim-dap.nvim",
+		"leoluz/nvim-dap-go",
+	},
+	keys = {
+		{
+			"<leader>B",
+			function()
+				require("dap").set_breakpoint()
+			end,
+			desc = "Set [B]reakpoint",
+		},
 	},
 	config = function()
 		local dapui = require("dapui")
@@ -54,7 +63,7 @@ return {
 		}
 
 		require("mason-nvim-dap").setup({
-			handlers = {}, -- sets up dap in the predefined manner
+			handlers = {},
 		})
 
 		vim.keymap.set("n", "<F5>", dap.continue, { desc = "[F1] Continue" })
@@ -62,7 +71,7 @@ return {
 		vim.keymap.set("n", "<F7>", dap.step_into, { desc = "[F3] Step Into" })
 		vim.keymap.set("n", "<F8>", dap.step_out, { desc = "[F4] Step Out" })
 		vim.keymap.set("n", "<leader>tB", dap.toggle_breakpoint, { desc = "[T]oggle [B]reakpoint" })
-		vim.keymap.set("n", "<leader>B", dap.set_breakpoint, { desc = "[B]reakpoint" })
+		-- vim.keymap.set("n", "<leader>B", dap.set_breakpoint, { desc = "[B]reakpoint" })
 		-- vim.keymap.set("n", "<Leader>lp", dap.set_breakpoint(nil, nil, vim.fn.input("Log point message: ")))
 		-- vim.keymap.set("n", "<leader>dr", dap.repl.open)
 		-- vim.keymap.set("n", "<leader>dl", dap.run_last)
